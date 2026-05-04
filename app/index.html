@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SpamShield AI — SMS Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300;1,400&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:        #0b0e1a;
+  --bg2:       #0f1221;
+  --bg3:       #141728;
+  --card:      rgba(255,255,255,0.04);
+  --card-b:    rgba(255,255,255,0.08);
+  --glass:     rgba(255,255,255,0.05);
+  --border:    rgba(255,255,255,0.08);
+  --border-h:  rgba(255,255,255,0.18);
+
+  --teal:      #00d4aa;
+  --teal-d:    #00a888;
+  --violet:    #8b5cf6;
+  --violet-d:  #6d3fd4;
+  --gold:      #f5c842;
+  --gold-d:    #c49a1a;
+  --rose:      #f43f5e;
+  --sky:       #38bdf8;
+
+  --text:      #e8eaf2;
+  --text-2:    #9da3b8;
+  --text-3:    #5a607a;
+
+  --f-display: 'Montserrat', sans-serif;
+  --f-body:    'Poppins', sans-serif;
+  --f-data:    'Roboto', sans-serif;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--f-body);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ─── ANIMATED MESH BACKGROUND ───────────────────────────────── */
+#mesh{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(120px);opacity:0.18;
+  animation:drift var(--d,18s) ease-in-out infinite alternate;
+}
+.orb1{width:700px;height:700px;background:radial-gradient(circle,#8b5cf6,transparent 70%);top:-200px;left:-200px;--d:20s}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,#00d4aa,transparent 70%);bottom:-150px;right:-150px;--d:25s;animation-delay:-8s}
+.orb3{width:500px;height:500px;background:radial-gradient(circle,#f43f5e,transparent 70%);top:40%;left:30%;--d:30s;animation-delay:-5s;opacity:0.10}
+.orb4{width:400px;height:400px;background:radial-gradient(circle,#38bdf8,transparent 70%);top:10%;right:10%;--d:22s;animation-delay:-12s;opacity:0.12}
+@keyframes drift{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(60px,40px) scale(1.12)}
+}
+
+/* Subtle grid overlay */
+#mesh::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ─── NOISE ───────────────────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+
+/* ─── NAV ─────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 56px;
+  background:rgba(11,14,26,0.7);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  font-family:var(--f-display);
+  font-size:19px;font-weight:700;letter-spacing:0.04em;
+  display:flex;align-items:center;gap:10px;
+}
+.logo-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--teal);
+  box-shadow:0 0 10px var(--teal);
+  animation:pulse-dot 2.5s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 6px var(--teal)}50%{box-shadow:0 0 18px var(--teal),0 0 32px var(--teal)}}
+.logo span{color:var(--teal)}
+.nav-links{display:flex;gap:36px}
+.nav-links a{
+  font-family:var(--f-body);font-size:13px;font-weight:300;
+  color:var(--text-2);text-decoration:none;letter-spacing:0.04em;
+  transition:color 0.2s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;left:0;bottom:-3px;
+  width:0;height:1px;background:var(--teal);
+  transition:width 0.3s ease;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-links a:hover::after{width:100%}
+.nav-pill{
+  font-family:var(--f-data);font-size:11px;font-weight:500;
+  letter-spacing:0.08em;
+  background:rgba(0,212,170,0.12);
+  border:1px solid rgba(0,212,170,0.3);
+  color:var(--teal);padding:7px 16px;border-radius:100px;
+}
+
+/* ─── HERO ────────────────────────────────────────────────────── */
+.hero{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:120px 40px 80px;
+}
+
+.hero-kicker{
+  font-family:var(--f-data);font-size:11px;font-weight:500;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:28px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  opacity:0;animation:fadeUp 0.8s 0.1s ease both;
+}
+.hero-kicker::before,.hero-kicker::after{content:'';width:28px;height:1px;background:var(--teal);opacity:0.5}
+
+.hero-h1{
+  font-family:var(--f-display);
+  font-size:clamp(48px,7.5vw,100px);
+  font-weight:800;line-height:1.0;
+  letter-spacing:-0.03em;
+  margin-bottom:12px;
+  opacity:0;animation:fadeUp 0.9s 0.25s ease both;
+}
+.h1-line2{
+  font-family:var(--f-display);
+  font-size:clamp(40px,6.5vw,86px);
+  font-weight:200;
+  letter-spacing:0.01em;
+  color:var(--text-2);
+  display:block;
+  opacity:0;animation:fadeUp 0.9s 0.35s ease both;
+}
+.grad{
+  background:linear-gradient(135deg,var(--teal) 0%,var(--sky) 40%,var(--violet) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.hero-sub{
+  font-family:var(--f-body);font-size:16px;font-weight:300;
+  color:var(--text-2);line-height:1.8;
+  max-width:560px;margin:32px auto 56px;
+  opacity:0;animation:fadeUp 0.9s 0.5s ease both;
+}
+
+/* Stats row */
+.hero-stats{
+  display:flex;gap:0;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--glass);
+  backdrop-filter:blur(12px);
+  margin-bottom:56px;
+  opacity:0;animation:fadeUp 0.9s 0.65s ease both;
+}
+.stat-cell{
+  flex:1;padding:28px 36px;
+  border-right:1px solid var(--border);
+  text-align:center;
+  transition:background 0.3s;
+}
+.stat-cell:last-child{border-right:none}
+.stat-cell:hover{background:rgba(255,255,255,0.04)}
+.stat-n{
+  font-family:var(--f-display);font-size:38px;font-weight:700;
+  line-height:1;margin-bottom:6px;
+}
+.stat-l{
+  font-family:var(--f-data);font-size:11px;font-weight:400;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--text-3);
+}
+.c-teal{color:var(--teal)}
+.c-sky{color:var(--sky)}
+.c-violet{color:var(--violet)}
+.c-gold{color:var(--gold)}
+
+/* CTA row */
+.hero-cta{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  opacity:0;animation:fadeUp 0.9s 0.8s ease both;
+}
+.btn-teal{
+  font-family:var(--f-body);font-size:13px;font-weight:500;
+  letter-spacing:0.06em;
+  background:linear-gradient(135deg,var(--teal),var(--sky));
+  color:#0b0e1a;border:none;padding:14px 36px;
+  border-radius:100px;cursor:pointer;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.btn-teal:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,170,0.3)}
+.btn-out{
+  font-family:var(--f-body);font-size:13px;font-weight:400;
+  letter-spacing:0.06em;
+  background:transparent;border:1px solid var(--border-h);
+  color:var(--text-2);padding:14px 36px;
+  border-radius:100px;cursor:pointer;
+  transition:border-color 0.2s,color 0.2s,transform 0.2s;
+}
+.btn-out:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px)}
+
+/* Scroll indicator */
+.scroll-ind{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;animation:fadeUp 1s 1.2s ease both;
+}
+.scroll-ind span{font-family:var(--f-data);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-3)}
+.scroll-track{width:1px;height:40px;background:linear-gradient(to bottom,var(--border-h),transparent);position:relative;overflow:hidden}
+.scroll-thumb{position:absolute;top:0;width:100%;height:50%;background:var(--teal);animation:scrollDown 2s ease infinite}
+@keyframes scrollDown{0%{top:-50%;opacity:1}100%{top:100%;opacity:0}}
+
+/* ─── SECTION SHARED ──────────────────────────────────────────── */
+.section-wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:100px 56px}
+.section-tag{
+  font-family:var(--f-data);font-size:11px;font-weight:500;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-tag::before{content:'';width:24px;height:1px;background:var(--teal)}
+.section-h{
+  font-family:var(--f-display);
+  font-size:clamp(32px,3.5vw,52px);
+  font-weight:700;letter-spacing:-0.02em;
+  line-height:1.1;margin-bottom:16px;
+}
+.section-h em{
+  font-family:var(--f-body);font-style:italic;
+  font-weight:300;color:var(--text-2);
+}
+.section-sub{
+  font-family:var(--f-body);font-size:15px;font-weight:300;
+  color:var(--text-2);line-height:1.8;max-width:520px;margin-bottom:64px;
+}
+
+/* Horizontal rule */
+.h-rule{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:0 56px}
+
+/* ─── PIPELINE ────────────────────────────────────────────────── */
+.pipeline{display:flex;flex-direction:column;gap:0}
+.pipe-step{
+  display:grid;grid-template-columns:80px 1fr;
+  border-bottom:1px solid var(--border);
+  cursor:default;transition:background 0.25s;
+}
+.pipe-step:first-child{border-top:1px solid var(--border)}
+.pipe-step:hover{background:rgba(255,255,255,0.025)}
+.pipe-num{
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);
+  padding:32px 0;
+}
+.pipe-num span{
+  font-family:var(--f-display);font-size:11px;font-weight:600;
+  letter-spacing:0.1em;color:var(--text-3);
+}
+.pipe-content{
+  padding:32px 40px;
+  display:grid;grid-template-columns:200px 1fr;gap:0 40px;
+  align-items:start;
+}
+.pipe-name{
+  font-family:var(--f-display);font-size:17px;font-weight:600;
+  color:var(--text);padding-top:2px;
+}
+.pipe-right{
+  display:flex;flex-direction:column;gap:12px;
+}
+.pipe-desc{
+  font-family:var(--f-body);font-size:14px;font-weight:300;
+  color:var(--text-2);line-height:1.75;margin-bottom:8px;
+}
+.pipe-code{
+  font-family:'Roboto Mono','DM Mono',monospace;font-size:11px;
+  font-weight:400;color:var(--teal);opacity:0.7;
+  letter-spacing:0.03em;
+}
+
+/* Color indicator strip on left edge of active step */
+.pipe-step:hover .pipe-num{border-right-color:var(--teal)}
+.pipe-step:hover .pipe-num span{color:var(--teal)}
+
+/* ─── MODEL CARDS ─────────────────────────────────────────────── */
+.models-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.mcard{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;padding:36px;
+  position:relative;overflow:hidden;
+  transition:border-color 0.3s,transform 0.3s,box-shadow 0.3s;
+}
+.mcard::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--c1,var(--teal)),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.mcard:hover{border-color:var(--border-h);transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
+.mcard:hover::before{opacity:1}
+.mcard.best{
+  background:linear-gradient(145deg,rgba(0,212,170,0.08),rgba(56,189,248,0.04));
+  border-color:rgba(0,212,170,0.3);
+}
+.mcard.best::before{opacity:1;background:linear-gradient(90deg,var(--teal),var(--sky))}
+.mcard-tag{
+  font-family:var(--f-data);font-size:10px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:24px;
+}
+.mcard.best .mcard-tag{color:var(--teal)}
+.mcard-name{
+  font-family:var(--f-display);font-size:22px;font-weight:700;
+  color:var(--text);margin-bottom:4px;
+}
+.mcard-algo{
+  font-family:var(--f-data);font-size:12px;font-weight:300;
+  color:var(--text-3);margin-bottom:32px;
+}
+.mcard.best .mcard-name{
+  background:linear-gradient(135deg,var(--teal),var(--sky));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.mcard-metrics{display:flex;flex-direction:column;gap:20px}
+.mm-label{
+  font-family:var(--f-data);font-size:10px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:8px;
+}
+.mm-track{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:5px}
+.mm-fill{height:100%;border-radius:2px;width:0;transition:width 1.4s cubic-bezier(0.4,0,0.2,1)}
+.mm-nb .mm-fill{background:linear-gradient(90deg,var(--violet),var(--sky))}
+.mm-lr .mm-fill{background:linear-gradient(90deg,var(--gold),var(--rose))}
+.mm-svm .mm-fill{background:linear-gradient(90deg,var(--teal),var(--sky))}
+.mm-val{
+  font-family:var(--f-display);font-size:13px;font-weight:600;
+  color:var(--text);
+}
+.best-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);
+  color:var(--teal);font-family:var(--f-data);font-size:10px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:5px 12px;border-radius:100px;margin-bottom:16px;
+}
+.best-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--teal)}
+
+/* ─── DEMO ────────────────────────────────────────────────────── */
+.demo-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  align-items:start;
+}
+.demo-panel{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:40px;
+}
+.demo-panel-label{
+  font-family:var(--f-data);font-size:10px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:20px;
+}
+textarea{
+  width:100%;background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-family:var(--f-body);
+  font-size:14px;font-weight:300;line-height:1.75;
+  padding:18px 20px;resize:none;outline:none;
+  min-height:140px;transition:border-color 0.25s;
+}
+textarea:focus{border-color:rgba(0,212,170,0.4);box-shadow:0 0 0 3px rgba(0,212,170,0.05)}
+textarea::placeholder{color:var(--text-3)}
+
+.samples-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.samp{
+  font-family:var(--f-data);font-size:10px;font-weight:400;
+  letter-spacing:0.06em;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-3);padding:7px 14px;border-radius:100px;
+  cursor:pointer;transition:all 0.2s;
+}
+.samp:hover{border-color:var(--teal);color:var(--teal)}
+
+.do-btn{
+  margin-top:24px;width:100%;
+  font-family:var(--f-body);font-size:13px;font-weight:500;
+  letter-spacing:0.08em;
+  background:linear-gradient(135deg,var(--teal),var(--sky));
+  color:#0b0e1a;border:none;padding:15px;
+  border-radius:12px;cursor:pointer;
+  transition:opacity 0.2s,transform 0.2s;
+}
+.do-btn:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* Result panel */
+.result-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:300px;gap:16px;
+}
+.result-empty-ring{
+  width:64px;height:64px;border-radius:50%;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+}
+.result-empty-ring svg{opacity:0.2}
+.result-empty p{
+  font-family:var(--f-data);font-size:11px;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--text-3);
+}
+
+.result-content{display:none}
+.result-label{
+  font-family:var(--f-data);font-size:10px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.result-verdict{
+  font-family:var(--f-display);font-size:52px;font-weight:800;
+  letter-spacing:-0.02em;line-height:1;margin-bottom:10px;
+}
+.result-meta{
+  font-family:var(--f-data);font-size:12px;
+  color:var(--text-3);margin-bottom:36px;letter-spacing:0.04em;
+}
+
+.signals{display:flex;flex-direction:column;gap:12px}
+.sig{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 16px;border-radius:10px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+}
+.sig-icon{
+  width:18px;height:18px;border-radius:50%;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;margin-top:1px;
+}
+.sig-icon.bad{background:rgba(244,63,94,0.15);color:var(--rose)}
+.sig-icon.good{background:rgba(0,212,170,0.12);color:var(--teal)}
+.sig-text{
+  font-family:var(--f-body);font-size:13px;font-weight:300;
+  color:var(--text-2);line-height:1.5;
+}
+
+.verdict-spam{
+  background:linear-gradient(135deg,var(--rose),#ff6b9d);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.verdict-ham{
+  background:linear-gradient(135deg,var(--teal),var(--sky));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.label-spam{color:var(--rose)}
+.label-ham{color:var(--teal)}
+
+/* Confidence bar */
+.conf-wrap{margin-bottom:28px}
+.conf-label{
+  font-family:var(--f-data);font-size:10px;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--text-3);
+  display:flex;justify-content:space-between;margin-bottom:8px;
+}
+.conf-track{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.conf-fill{height:100%;border-radius:2px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1)}
+.conf-spam .conf-fill{background:linear-gradient(90deg,var(--rose),#ff6b9d)}
+.conf-ham  .conf-fill{background:linear-gradient(90deg,var(--teal),var(--sky))}
+
+/* ─── TECH STRIP ──────────────────────────────────────────────── */
+.tech-strip{
+  position:relative;z-index:1;
+  padding:60px 56px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.tech-inner{
+  display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+  justify-content:center;
+}
+.tech-chip{
+  font-family:var(--f-data);font-size:12px;font-weight:400;
+  letter-spacing:0.05em;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  color:var(--text-2);padding:10px 20px;
+  border-radius:100px;transition:all 0.25s;
+  display:flex;align-items:center;gap:8px;
+}
+.tech-chip:hover{border-color:var(--teal);color:var(--teal);background:rgba(0,212,170,0.05)}
+.tc-dot{width:5px;height:5px;border-radius:50%}
+
+/* ─── FOOTER ──────────────────────────────────────────────────── */
+footer{
+  position:relative;z-index:1;
+  padding:56px;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:32px;
+}
+.footer-logo{
+  font-family:var(--f-display);font-size:20px;font-weight:700;
+  letter-spacing:0.04em;
+}
+.footer-logo span{color:var(--teal)}
+.footer-mid{text-align:center}
+.footer-links{display:flex;gap:28px;justify-content:flex-end}
+.footer-links a{
+  font-family:var(--f-body);font-size:12px;font-weight:300;
+  letter-spacing:0.06em;color:var(--text-3);
+  text-decoration:none;transition:color 0.2s;
+}
+.footer-links a:hover{color:var(--teal)}
+.footer-copy{
+  font-family:var(--f-data);font-size:11px;
+  color:var(--text-3);letter-spacing:0.04em;
+  margin-top:6px;
+}
+
+/* ─── REVEAL ──────────────────────────────────────────────────── */
+.r{opacity:0;transform:translateY(24px);transition:opacity 0.75s ease,transform 0.75s ease}
+.r.in{opacity:1;transform:none}
+.r.d1{transition-delay:0.1s}
+.r.d2{transition-delay:0.2s}
+.r.d3{transition-delay:0.3s}
+
+/* ─── KEYFRAMES ───────────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- MESH BG -->
+<div id="mesh">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Spam<span>Shield</span>
+  </div>
+  <div class="nav-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#models">Models</a>
+    <a href="#classify">Classify</a>
+    <a href="#tech">Stack</a>
+  </div>
+  <div class="nav-pill">SVM · 98.92% acc</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-kicker">Personalized Spam Identifier</div>
+  <h1 class="hero-h1"><span class="grad">Intelligent</span></h1>
+  <span class="h1-line2">SMS Detection</span>
+
+  <p class="hero-sub">
+    A precision NLP pipeline that classifies SMS messages as spam or legitimate — trained on 5,572 real-world messages using TF-IDF and three competing ML models.
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat-cell">
+      <div class="stat-n c-teal">98.92%</div>
+      <div class="stat-l">Accuracy</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n c-sky">5,572</div>
+      <div class="stat-l">Messages</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n c-violet">95.97%</div>
+      <div class="stat-l">F1 Score</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-n c-gold">3</div>
+      <div class="stat-l">ML Models</div>
+    </div>
+  </div>
+
+  <div class="hero-cta">
+    <button class="btn-teal" onclick="document.getElementById('classify').scrollIntoView({behavior:'smooth'})">Classify a message</button>
+    <button class="btn-out" onclick="document.getElementById('models').scrollIntoView({behavior:'smooth'})">View models</button>
+  </div>
+
+  <div class="scroll-ind">
+    <span>Scroll</span>
+    <div class="scroll-track"><div class="scroll-thumb"></div></div>
+  </div>
+</div>
+
+<div class="h-rule"></div>
+
+<!-- PIPELINE -->
+<div id="pipeline" class="section-wrap">
+  <div class="section-tag r">Process</div>
+  <h2 class="section-h r d1">End-to-end <em>NLP pipeline</em></h2>
+  <p class="section-sub r d2">Five stages transform raw SMS text into a binary verdict in milliseconds.</p>
+
+  <div class="pipeline r d3">
+    <div class="pipe-step">
+      <div class="pipe-num"><span>01</span></div>
+      <div class="pipe-content">
+        <div class="pipe-name">Raw input</div>
+        <div>
+          <p class="pipe-desc">Any SMS message enters the pipeline as unstructured text from the SMS Spam Collection dataset — 5,572 real messages, 86.6% ham and 13.4% spam.</p>
+          <div class="pipe-code">dataset · 5,572 records · UCI ML repository</div>
+        </div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num"><span>02</span></div>
+      <div class="pipe-content">
+        <div class="pipe-name">Preprocessing</div>
+        <div>
+          <p class="pipe-desc">Lowercased. URLs normalised to a url token. Digits replaced with num. Punctuation stripped. Whitespace collapsed. Spam messages average 138 chars vs 71 for ham.</p>
+          <div class="pipe-code">re.sub · str.lower · url_tag · digit_tag</div>
+        </div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num"><span>03</span></div>
+      <div class="pipe-content">
+        <div class="pipe-name">TF-IDF vectorisation</div>
+        <div>
+          <p class="pipe-desc">8,000-feature bigram matrix with sublinear term-frequency scaling. Captures single words and two-word spam patterns like "free entry" and "call now".</p>
+          <div class="pipe-code">max_features=8000 · ngram_range=(1,2) · sublinear_tf=True</div>
+        </div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num"><span>04</span></div>
+      <div class="pipe-content">
+        <div class="pipe-name">Model training</div>
+        <div>
+          <p class="pipe-desc">Three classifiers trained on an 80/20 stratified split — Naïve Bayes, Logistic Regression, and SVM — each benchmarked with 5-fold cross-validation.</p>
+          <div class="pipe-code">MultinomialNB · LogisticRegression · LinearSVC</div>
+        </div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num"><span>05</span></div>
+      <div class="pipe-content">
+        <div class="pipe-name">Verdict</div>
+        <div>
+          <p class="pipe-desc">SVM wins as the best model across all metrics. Ham or spam output in real time, validated by stratified cross-validation with a mean F1 of 95.54% ± 0.79%.</p>
+          <div class="pipe-code">LinearSVC · 98.92% acc · F1 95.97% · CV 95.54±0.79%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-rule"></div>
+
+<!-- MODELS -->
+<div id="models" class="section-wrap">
+  <div class="section-tag r">Performance</div>
+  <h2 class="section-h r d1">Three classifiers, <em>one winner</em></h2>
+  <p class="section-sub r d2">All models use the same TF-IDF features. SVM's margin maximisation gives it the edge on high-dimensional text.</p>
+
+  <div class="models-row">
+    <!-- NB -->
+    <div class="mcard r d1" style="--c1:var(--violet)">
+      <div class="mcard-tag">01 — Naïve Bayes</div>
+      <div class="mcard-name">Probabilistic</div>
+      <div class="mcard-algo">MultinomialNB · α = 0.1</div>
+      <div class="mcard-metrics mm-nb">
+        <div>
+          <div class="mm-label">Accuracy</div>
+          <div class="mm-track"><div class="mm-fill" data-w="98.57"></div></div>
+          <div class="mm-val">98.57%</div>
+        </div>
+        <div>
+          <div class="mm-label">F1 Score</div>
+          <div class="mm-track"><div class="mm-fill" data-w="94.44"></div></div>
+          <div class="mm-val">94.44%</div>
+        </div>
+        <div>
+          <div class="mm-label">CV F1 (5-fold)</div>
+          <div class="mm-track"><div class="mm-fill" data-w="95.94"></div></div>
+          <div class="mm-val">95.94 ± 1.05%</div>
+        </div>
+      </div>
+    </div>
+    <!-- LR -->
+    <div class="mcard r d2" style="--c1:var(--gold)">
+      <div class="mcard-tag">02 — Logistic Regression</div>
+      <div class="mcard-name">Linear</div>
+      <div class="mcard-algo">LR · C = 5 · lbfgs solver</div>
+      <div class="mcard-metrics mm-lr">
+        <div>
+          <div class="mm-label">Accuracy</div>
+          <div class="mm-track"><div class="mm-fill" data-w="98.57"></div></div>
+          <div class="mm-val">98.57%</div>
+        </div>
+        <div>
+          <div class="mm-label">F1 Score</div>
+          <div class="mm-track"><div class="mm-fill" data-w="94.63"></div></div>
+          <div class="mm-val">94.63%</div>
+        </div>
+        <div>
+          <div class="mm-label">CV F1 (5-fold)</div>
+          <div class="mm-track"><div class="mm-fill" data-w="94.91"></div></div>
+          <div class="mm-val">94.91 ± 1.15%</div>
+        </div>
+      </div>
+    </div>
+    <!-- SVM best -->
+    <div class="mcard best r d3" style="--c1:var(--teal)">
+      <div class="best-badge">Best Model</div>
+      <div class="mcard-tag">03 — Support Vector Machine</div>
+      <div class="mcard-name">Margin-based</div>
+      <div class="mcard-algo">LinearSVC · C = 1.0</div>
+      <div class="mcard-metrics mm-svm">
+        <div>
+          <div class="mm-label">Accuracy</div>
+          <div class="mm-track"><div class="mm-fill" data-w="98.92"></div></div>
+          <div class="mm-val">98.92%</div>
+        </div>
+        <div>
+          <div class="mm-label">F1 Score</div>
+          <div class="mm-track"><div class="mm-fill" data-w="95.97"></div></div>
+          <div class="mm-val">95.97%</div>
+        </div>
+        <div>
+          <div class="mm-label">CV F1 (5-fold)</div>
+          <div class="mm-track"><div class="mm-fill" data-w="95.54"></div></div>
+          <div class="mm-val">95.54 ± 0.79%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-rule"></div>
+
+<!-- CLASSIFY -->
+<div id="classify" class="section-wrap">
+  <div class="section-tag r">Live inference</div>
+  <h2 class="section-h r d1">Classify <em>any message</em></h2>
+  <p class="section-sub r d2">Paste any SMS below and the SVM pipeline will classify it instantly.</p>
+
+  <div class="demo-grid r d3">
+    <!-- Input -->
+    <div class="demo-panel">
+      <div class="demo-panel-label">Message input</div>
+      <textarea id="msg" placeholder="Type or paste an SMS message…" rows="5"></textarea>
+
+      <div class="samples-row">
+        <button class="samp" onclick="fill('spam1')">Spam #1</button>
+        <button class="samp" onclick="fill('spam2')">Spam #2</button>
+        <button class="samp" onclick="fill('ham1')">Ham #1</button>
+        <button class="samp" onclick="fill('ham2')">Ham #2</button>
+      </div>
+
+      <button class="do-btn" onclick="run()">Analyse message →</button>
+    </div>
+
+    <!-- Result -->
+    <div class="demo-panel">
+      <div class="result-empty" id="r-empty">
+        <div class="result-empty-ring">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>
+          </svg>
+        </div>
+        <p>Awaiting message</p>
+      </div>
+      <div class="result-content" id="r-out">
+        <div class="result-label" id="r-label"></div>
+        <div class="result-verdict" id="r-verdict"></div>
+        <div class="result-meta" id="r-meta"></div>
+        <div class="conf-wrap" id="r-conf-wrap">
+          <div class="conf-label">
+            <span>Confidence</span>
+            <span id="r-conf-pct"></span>
+          </div>
+          <div class="conf-track"><div class="conf-fill" id="r-conf-fill" style="width:0%"></div></div>
+        </div>
+        <div class="signals" id="r-sigs"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STRIP -->
+<div id="tech" class="tech-strip">
+  <div class="tech-inner">
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--teal)"></span>Python 3.11</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--violet)"></span>scikit-learn</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--sky)"></span>TF-IDF Vectorizer</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--teal)"></span>LinearSVC</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--gold)"></span>LogisticRegression</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--violet)"></span>MultinomialNB</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--rose)"></span>pandas</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--sky)"></span>NumPy</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--teal)"></span>Matplotlib</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--gold)"></span>Seaborn</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--violet)"></span>Jupyter Notebook</div>
+    <div class="tech-chip"><span class="tc-dot" style="background:var(--sky)"></span> Personal Project </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Spam<span>Shield</span></div>
+  <div class="footer-mid">
+    <div class="footer-copy">Karthikeyan Thirunavukkarasu · Tiruchirappalli, Tamil Nadu</div>
+    <div class="footer-copy" style="margin-top:4px;opacity:0.6">© 2025 Personal Project </div>
+  </div>
+  <div class="footer-links">
+    <a href="https://linkedin.com/in/karthikeyan-thirunavukkarasu-2a2949305" target="_blank">LinkedIn</a>
+    <a href="https://github.com/karthiikofcl07" target="_blank">GitHub</a>
+  </div>
+</footer>
+
+<script>
+/* ─── Scroll reveal ─────────────────────────────────────────── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      e.target.querySelectorAll('.mm-fill').forEach((b, i) => {
+        setTimeout(() => { b.style.width = b.dataset.w + '%'; }, i * 100 + 200);
+      });
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.r').forEach(el => io.observe(el));
+
+/* ─── Samples ───────────────────────────────────────────────── */
+const msgs = {
+  spam1: "WINNER!! As a valued network customer you have been selected to receive a £900 prize reward! To claim call 09061701461. Claim code KL341. Valid 12 hours only.",
+  spam2: "FREE entry in 2 a wkly comp to win FA Cup final tkts 21st May 2005. Text FA to 87121 to receive entry question(std txt rate)T&C's apply 08452810075over18's",
+  ham1:  "Hey, are we still meeting for lunch tomorrow at the usual place? Let me know if 1pm works for you.",
+  ham2:  "Your appointment is confirmed for Thursday at 3:30pm. Reply CANCEL to cancel or CHANGE to reschedule.",
+};
+function fill(k) { document.getElementById('msg').value = msgs[k]; }
+
+/* ─── Classifier ────────────────────────────────────────────── */
+function run() {
+  const txt = document.getElementById('msg').value.trim();
+  if (!txt) return;
+
+  const spamKw = ['win','winner','free','prize','claim','cash','click','urgent',
+    'congratulations','selected','offer','limited','reward','won','credit','loan',
+    'subscribe','guaranteed','bonus','exclusive','ringtone','nokia','dvd',
+    'camera','text fa','txt','wkly','comp'];
+  const spamPat = [
+    /http|www\.\w+/i, /\d{8,}/, /[£$€]\d+/, /call\s*0\d{8,}/i,
+    /reply\s*(yes|no|stop)/i, /\bfree\b/i, /\bwon\b/i, /\bprize\b/i,
+    /\bcongrat/i, /\bwinner\b/i, /\bselected\b/i, /\bclaim\b/i, /tkts\b/i,
+  ];
+
+  const lower = txt.toLowerCase();
+  let score = 0;
+  spamKw.forEach(k => { if (lower.includes(k)) score++; });
+  spamPat.forEach(p => { if (p.test(txt)) score += 2; });
+  if (txt.length > 120) score++;
+  const caps = txt.replace(/[^A-Z]/g,'').length / txt.length;
+  if (caps > 0.25) score += 2;
+
+  const isSpam = score >= 3;
+  const conf = isSpam
+    ? Math.min(99, 83 + score * 2)
+    : Math.min(99, 94 - score * 4);
+
+  let signals = [];
+  if (isSpam) {
+    if (/http|www/i.test(txt))           signals.push({ t:'Suspicious URL detected', bad:true });
+    if (/\bfree\b|\bwin\b|\bprize\b|\bclaim\b/i.test(txt)) signals.push({ t:'Promotional trigger keyword found', bad:true });
+    if (/[£$€]\d+/i.test(txt))           signals.push({ t:'Currency amount present', bad:true });
+    if (/call\s*0\d{8,}/i.test(txt))     signals.push({ t:'Premium-rate phone number detected', bad:true });
+    if (caps > 0.25) signals.push({ t:`High capitalisation ratio — ${Math.round(caps*100)}%`, bad:true });
+    if (txt.length > 120) signals.push({ t:`Long message length — ${txt.length} characters`, bad:true });
+    if (!signals.length) signals.push({ t:'Multiple combined spam-pattern signals', bad:true });
+  } else {
+    signals = [
+      { t:'No promotional trigger words detected', bad:false },
+      { t:'Natural conversational language pattern', bad:false },
+      { t:'No suspicious URLs or premium numbers', bad:false },
+    ];
+  }
+
+  /* Render */
+  document.getElementById('r-empty').style.display = 'none';
+  const out = document.getElementById('r-out');
+  out.style.display = 'block';
+
+  const lbl = document.getElementById('r-label');
+  lbl.textContent = isSpam ? '— Classified as spam' : '— Classified as ham';
+  lbl.className = 'result-label ' + (isSpam ? 'label-spam' : 'label-ham');
+
+  const v = document.getElementById('r-verdict');
+  v.textContent = isSpam ? 'Spam' : 'Legitimate';
+  v.className = 'result-verdict ' + (isSpam ? 'verdict-spam' : 'verdict-ham');
+
+  document.getElementById('r-meta').textContent =
+    `SVM · LinearSVC · TF-IDF bigram · ${conf}% confidence`;
+
+  const cw = document.getElementById('r-conf-wrap');
+  cw.className = 'conf-wrap ' + (isSpam ? 'conf-spam' : 'conf-ham');
+  document.getElementById('r-conf-pct').textContent = conf + '%';
+  setTimeout(() => { document.getElementById('r-conf-fill').style.width = conf + '%'; }, 50);
+
+  document.getElementById('r-sigs').innerHTML = signals.map(s => `
+    <div class="sig">
+      <div class="sig-icon ${s.bad ? 'bad' : 'good'}">${s.bad ? '✕' : '✓'}</div>
+      <span class="sig-text">${s.t}</span>
+    </div>
+  `).join('');
+}
+
+document.getElementById('msg').addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') run();
+});
+</script>
+</body>
+</html>

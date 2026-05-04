@@ -1,0 +1,71 @@
+{
+  "eda": {
+    "total": 5572,
+    "ham": 4825,
+    "spam": 747,
+    "spam_pct": 13.41,
+    "avg_len_ham": 71.0,
+    "avg_len_spam": 138.9,
+    "avg_words_ham": 14.2,
+    "avg_words_spam": 23.9
+  },
+  "models": {
+    "Naive Bayes": {
+      "accuracy": 98.57,
+      "precision": 97.84,
+      "recall": 91.28,
+      "f1": 94.44,
+      "cv_f1_mean": 95.94,
+      "cv_f1_std": 1.05,
+      "report": "              precision    recall  f1-score   support\n\n         Ham       0.99      1.00      0.99       966\n        Spam       0.98      0.91      0.94       149\n\n    accuracy                           0.99      1115\n   macro avg       0.98      0.95      0.97      1115\nweighted avg       0.99      0.99      0.99      1115\n",
+      "cm": [
+        [
+          963,
+          3
+        ],
+        [
+          13,
+          136
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "accuracy": 98.57,
+      "precision": 94.63,
+      "recall": 94.63,
+      "f1": 94.63,
+      "cv_f1_mean": 94.91,
+      "cv_f1_std": 1.15,
+      "report": "              precision    recall  f1-score   support\n\n         Ham       0.99      0.99      0.99       966\n        Spam       0.95      0.95      0.95       149\n\n    accuracy                           0.99      1115\n   macro avg       0.97      0.97      0.97      1115\nweighted avg       0.99      0.99      0.99      1115\n",
+      "cm": [
+        [
+          958,
+          8
+        ],
+        [
+          8,
+          141
+        ]
+      ]
+    },
+    "Support Vector Machine": {
+      "accuracy": 98.92,
+      "precision": 95.97,
+      "recall": 95.97,
+      "f1": 95.97,
+      "cv_f1_mean": 95.54,
+      "cv_f1_std": 0.79,
+      "report": "              precision    recall  f1-score   support\n\n         Ham       0.99      0.99      0.99       966\n        Spam       0.96      0.96      0.96       149\n\n    accuracy                           0.99      1115\n   macro avg       0.98      0.98      0.98      1115\nweighted avg       0.99      0.99      0.99      1115\n",
+      "cm": [
+        [
+          960,
+          6
+        ],
+        [
+          6,
+          143
+        ]
+      ]
+    }
+  }
+}
